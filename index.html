@@ -1,0 +1,862 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Zunio Demo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700;800&family=Figtree:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --emerald:#00503d;--cream:#fde7d4;--tan:#9f785d;--blue:#213f65;--brown:#4d301b;
+  --bg:#fff7f0;--surface:#ffffff;--ink:#2b1b0f;--muted:#7a6656;--line:#ecdccd;
+  --photo:#d6d5d2;--emerald-soft:#e3efe9;--blue-soft:#e6ecf4;--danger:#a3321f;
+  --head:'Sora',system-ui,-apple-system,'Segoe UI',sans-serif;
+  --body:'Figtree',system-ui,-apple-system,'Segoe UI',sans-serif;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#1d140d;--surface:#2a1e15;--ink:#fbeee2;--muted:#c4ab97;--line:#3d2c1f;
+  --photo:#c9c8c5;--emerald-soft:#103a2e;--blue-soft:#1c2c42;--cream:#fde7d4;
+}}
+:root[data-theme="dark"]{
+  --bg:#1d140d;--surface:#2a1e15;--ink:#fbeee2;--muted:#c4ab97;--line:#3d2c1f;
+  --photo:#c9c8c5;--emerald-soft:#103a2e;--blue-soft:#1c2c42;
+}
+*,*::before,*::after{box-sizing:inherit}
+html{height:100%;scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;min-height:100%;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.5}
+h1,h2,h3{font-family:var(--head);margin:0;line-height:1.2;color:var(--ink)}
+h1{font-size:1.9rem;font-weight:800}h2{font-size:1.4rem;font-weight:700}h3{font-size:1.05rem;font-weight:600}
+p{margin:0}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:3px solid var(--tan);outline-offset:2px}
+img,svg{max-width:100%}
+.hidden{display:none!important}
+.btn{border:0;border-radius:10px;padding:.7rem 1.1rem;font-weight:600;background:var(--emerald);color:#fff;transition:filter .15s}
+.btn:hover{filter:brightness(1.12)}
+.btn.secondary{background:transparent;color:var(--emerald);box-shadow:inset 0 0 0 1.5px var(--emerald)}
+.btn.blue{background:var(--blue)}
+.btn.small{padding:.45rem .8rem;font-size:.9rem}
+.btn.block{width:100%}
+.btn:disabled{opacity:.45;cursor:not-allowed;filter:none}
+.field{display:flex;flex-direction:column;gap:.35rem;margin-bottom:1rem}
+.field label{font-weight:600;font-size:.92rem}
+.field .hint{font-size:.82rem;color:var(--muted)}
+input[type=text],input[type=email],input[type=tel],input[type=number],input[type=url],select,textarea{
+  width:100%;padding:.65rem .8rem;border:1.5px solid var(--line);border-radius:10px;background:var(--surface)}
+input:focus,select:focus,textarea:focus{border-color:var(--emerald);outline:none}
+.row{display:flex;gap:.75rem}.row>*{flex:1}
+.err{color:var(--danger);font-size:.88rem;min-height:1.2em}
+
+/* ---------- Auth ---------- */
+#auth{min-height:100vh;display:grid;grid-template-columns:1fr 1fr}
+.auth-brand{background:var(--emerald);color:var(--cream);padding:3rem;display:flex;flex-direction:column;justify-content:space-between}
+.wordmark{font-family:var(--head);font-weight:800;letter-spacing:.02em}
+.auth-brand .wordmark{font-size:3.4rem;color:var(--cream)}
+.auth-brand .pitch{font-family:var(--head);font-size:1.6rem;font-weight:600;max-width:22ch;margin-top:1.2rem;line-height:1.3}
+.auth-brand ul{list-style:none;padding:0;margin:2rem 0 0;display:grid;gap:.7rem;font-size:1.02rem}
+.auth-brand li{display:flex;gap:.6rem;align-items:flex-start}
+.auth-brand li svg{flex:none;margin-top:.2rem}
+.byline{display:flex;align-items:center;gap:.6rem;font-size:.85rem;opacity:.9}
+.byline .logo-chip{background:var(--cream);border-radius:8px;padding:.3rem .5rem;display:flex}
+.auth-panel{display:flex;align-items:center;justify-content:center;padding:2rem}
+.auth-card{width:100%;max-width:440px}
+.steps{display:flex;gap:.4rem;margin-bottom:1.6rem}
+.steps span{height:5px;flex:1;border-radius:3px;background:var(--line)}
+.steps span.on{background:var(--emerald)}
+.auth-card h1{margin-bottom:.4rem}
+.auth-card .sub{color:var(--muted);margin-bottom:1.5rem}
+.seg{display:flex;background:var(--line);border-radius:12px;padding:4px;margin-bottom:1.2rem}
+.seg button{flex:1;border:0;background:transparent;padding:.55rem;border-radius:9px;font-weight:600;color:var(--muted)}
+.seg button.on{background:var(--surface);color:var(--emerald);box-shadow:0 1px 3px rgba(0,0,0,.08)}
+.code-inputs{display:flex;gap:.5rem;margin:1rem 0}
+.code-inputs input{text-align:center;font-size:1.4rem;font-weight:700;padding:.6rem 0}
+.demo-note{background:var(--blue-soft);color:var(--blue);border-radius:10px;padding:.6rem .8rem;font-size:.88rem;margin-bottom:1rem}
+:root[data-theme="dark"] .demo-note{color:#b9cbe4}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .demo-note{color:#b9cbe4}}
+.linkbtn{background:none;border:0;color:var(--blue);font-weight:600;padding:0;text-decoration:underline}
+.check{display:flex;gap:.55rem;align-items:flex-start;margin-bottom:.8rem;font-size:.95rem}
+.check input{margin-top:.25rem;accent-color:var(--emerald)}
+.private{display:inline-flex;align-items:center;gap:.3rem;font-size:.8rem;color:var(--emerald);font-weight:600}
+
+/* ---------- App shell ---------- */
+#app{min-height:100vh}
+header.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--emerald);color:var(--cream)}
+.top-inner{max-width:1200px;margin:0 auto;display:flex;align-items:center;gap:1.5rem;padding:.7rem 1.2rem}
+.top .wordmark{font-size:1.6rem;color:var(--cream);background:none;border:0;padding:0}
+nav.main{display:flex;gap:.25rem;flex:1;overflow-x:auto}
+nav.main button{background:transparent;border:0;color:var(--cream);opacity:.78;padding:.5rem .8rem;border-radius:8px;font-weight:600;white-space:nowrap;display:flex;align-items:center;gap:.4rem}
+nav.main button.on{opacity:1;background:rgba(253,231,212,.16)}
+nav.main button:hover{opacity:1}
+.badge{background:var(--cream);color:var(--emerald);border-radius:999px;font-size:.72rem;padding:0 .45rem;font-weight:700}
+.top .avatar{margin-left:auto}
+.avatar{width:38px;height:38px;border-radius:50%;background:var(--tan);color:#fff;display:grid;place-items:center;font-weight:700;font-family:var(--head);border:0;flex:none}
+main{max-width:1200px;margin:0 auto;padding:1.5rem 1.2rem 6rem}
+.page-head{display:flex;justify-content:space-between;align-items:flex-end;gap:1rem;margin-bottom:1.2rem;flex-wrap:wrap}
+.page-head p{color:var(--muted)}
+.soon{display:inline-block;background:var(--tan);color:#fff;font-size:.75rem;font-weight:700;padding:.15rem .55rem;border-radius:999px;vertical-align:middle;margin-left:.4rem}
+
+/* Browse */
+.cats{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-bottom:1.4rem}
+.cat{border:2px solid var(--line);background:var(--surface);border-radius:16px;padding:1.1rem 1.2rem;text-align:left;display:flex;gap:1rem;align-items:center}
+.cat.on{border-color:var(--emerald);background:var(--emerald-soft)}
+.cat .ic{width:52px;height:52px;border-radius:12px;background:var(--cream);display:grid;place-items:center;flex:none}
+.cat strong{font-family:var(--head);font-size:1.08rem;display:block}
+.cat small{color:var(--muted)}
+.browse{display:grid;grid-template-columns:250px 1fr;gap:1.5rem;align-items:start}
+.filters{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:1.1rem;position:sticky;top:5rem}
+.filters h3{margin-bottom:.8rem}
+.filters .field{margin-bottom:1.1rem}
+.chips{display:flex;flex-wrap:wrap;gap:.4rem}
+.chip{border:1.5px solid var(--line);background:var(--surface);border-radius:999px;padding:.3rem .7rem;font-size:.86rem;font-weight:600}
+.chip.on{background:var(--emerald);border-color:var(--emerald);color:#fff}
+input[type=range]{width:100%;accent-color:var(--emerald)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:1rem}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;overflow:hidden;text-align:left;padding:0;display:flex;flex-direction:column}
+.card:hover{border-color:var(--tan)}
+.photo{background:var(--photo);aspect-ratio:1/1;display:block;position:relative}
+.photo svg{display:block;width:100%;height:100%}
+.tag{position:absolute;top:.6rem;left:.6rem;font-size:.74rem;font-weight:700;padding:.2rem .55rem;border-radius:999px}
+.tag.neg{background:var(--emerald);color:#fff}
+.tag.firm{background:var(--brown);color:var(--cream)}
+.card .info{padding:.75rem .85rem .9rem;display:flex;flex-direction:column;gap:.15rem}
+.price{font-family:var(--head);font-weight:700;font-size:1.15rem}
+.meta{font-size:.84rem;color:var(--muted)}
+.empty{padding:3rem 1rem;text-align:center;color:var(--muted);background:var(--surface);border:1px dashed var(--line);border-radius:14px}
+
+/* Detail */
+.back{background:none;border:0;color:var(--blue);font-weight:600;padding:0;margin-bottom:1rem}
+.detail{display:grid;grid-template-columns:1.05fr 1fr;gap:2rem;align-items:start}
+.detail .photo{border-radius:16px;overflow:hidden}
+.kv{display:grid;grid-template-columns:repeat(3,1fr);gap:.6rem;margin:1rem 0}
+.kv div{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:.55rem .7rem}
+.kv small{display:block;color:var(--muted);font-size:.78rem}
+.kv b{font-size:.95rem}
+.seller{display:flex;gap:.8rem;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:.8rem;margin:1rem 0}
+.stars{color:#c48a1d;letter-spacing:1px}
+.actions{display:flex;gap:.6rem;flex-wrap:wrap}
+.nego{margin-top:1.4rem;background:var(--surface);border:1.5px solid var(--blue);border-radius:16px;overflow:hidden}
+.nego-head{background:var(--blue);color:#fff;padding:.7rem 1rem;display:flex;justify-content:space-between;align-items:center;gap:.5rem}
+.nego-head h3{color:#fff;font-size:.98rem}
+.nego-head small{opacity:.8}
+.msgs{padding:1rem;display:flex;flex-direction:column;gap:.6rem;max-height:320px;overflow-y:auto;min-height:140px}
+.msg{max-width:85%;padding:.6rem .85rem;border-radius:14px;font-size:.94rem}
+.msg.ai{background:var(--blue-soft);align-self:flex-start;border-bottom-left-radius:4px}
+.msg.me{background:var(--emerald);color:#fff;align-self:flex-end;border-bottom-right-radius:4px}
+.msg.them{background:var(--cream);color:var(--brown);align-self:flex-start;border-bottom-left-radius:4px}
+.msg.sys{align-self:center;font-size:.8rem;color:var(--muted);background:none;padding:.2rem}
+.msg ul{margin:.4rem 0 0;padding-left:1.1rem}
+.typing{display:inline-flex;gap:3px}.typing i{width:6px;height:6px;border-radius:50%;background:var(--blue);opacity:.5;animation:blink 1s infinite}
+.typing i:nth-child(2){animation-delay:.2s}.typing i:nth-child(3){animation-delay:.4s}
+@keyframes blink{50%{opacity:1}}
+@media (prefers-reduced-motion:reduce){.typing i{animation:none}}
+.composer{display:flex;gap:.5rem;padding:.7rem;border-top:1px solid var(--line)}
+.composer input{flex:1}
+.quick{display:flex;gap:.4rem;flex-wrap:wrap;padding:0 1rem .8rem}
+
+/* Sell */
+.sell{display:grid;grid-template-columns:340px 1fr;gap:2rem;align-items:start}
+.scan{background:var(--photo);border-radius:16px;aspect-ratio:1/1;display:grid;place-items:center;position:relative;overflow:hidden;border:2px dashed #a9a8a4}
+.scan.done{border-style:solid;border-color:transparent}
+.scan .scanline{position:absolute;left:0;right:0;height:3px;background:var(--emerald);box-shadow:0 0 14px var(--emerald);top:0;animation:scan 1.4s linear infinite}
+@keyframes scan{to{top:100%}}
+@media (prefers-reduced-motion:reduce){.scan .scanline{animation:none;top:50%}}
+.scan-empty{text-align:center;color:#55534f;padding:1rem}
+.toggle-row{display:flex;gap:.6rem;margin-bottom:1rem}
+.toggle-row button{flex:1;border:2px solid var(--line);background:var(--surface);border-radius:12px;padding:.7rem;font-weight:600;text-align:left}
+.toggle-row button.on{border-color:var(--emerald);background:var(--emerald-soft)}
+.toggle-row small{display:block;font-weight:400;color:var(--muted);font-size:.82rem}
+.reason{display:flex;gap:.5rem;margin-bottom:.5rem;align-items:center}
+.reason span{font-weight:700;color:var(--tan);width:1.2rem}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:1.3rem}
+
+/* Messages */
+.inbox{display:grid;grid-template-columns:300px 1fr;background:var(--surface);border:1px solid var(--line);border-radius:16px;overflow:hidden;min-height:480px}
+.threads{border-right:1px solid var(--line);overflow-y:auto}
+.thread{display:flex;gap:.7rem;padding:.8rem;border:0;border-bottom:1px solid var(--line);background:transparent;width:100%;text-align:left;align-items:center}
+.thread.on{background:var(--emerald-soft)}
+.thread .mini{width:46px;height:46px;border-radius:8px;overflow:hidden;flex:none;background:var(--photo)}
+.conv{display:flex;flex-direction:column}
+.conv .msgs{flex:1;max-height:none}
+.conv-head{padding:.8rem 1rem;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;gap:.5rem;flex-wrap:wrap}
+
+/* Cart */
+.cart-list{display:grid;gap:.8rem}
+.cart-item{display:flex;gap:1rem;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:.7rem}
+.cart-item .mini{width:80px;height:80px;border-radius:10px;overflow:hidden;flex:none}
+.cart-wrap{display:grid;grid-template-columns:1fr 320px;gap:1.5rem;align-items:start}
+.pay{display:flex;gap:.5rem;margin:.8rem 0}
+.pay span{flex:1;text-align:center;border:1.5px solid var(--line);border-radius:10px;padding:.5rem;font-weight:700}
+
+/* Membership */
+.plans{display:grid;grid-template-columns:repeat(2,1fr);gap:1.2rem;max-width:880px}
+.plan{background:var(--surface);border:2px solid var(--line);border-radius:18px;padding:1.6rem;display:flex;flex-direction:column;gap:.8rem}
+.plan.biz{border-color:var(--blue)}
+.plan .amt{font-family:var(--head);font-size:1.8rem;font-weight:800}
+.plan ul{margin:0;padding-left:1.1rem;display:grid;gap:.35rem}
+.plan .who{color:var(--muted)}
+
+/* Pickup */
+.pickup{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;align-items:start}
+.spot{display:flex;gap:.7rem;align-items:center;border:2px solid var(--line);border-radius:12px;padding:.7rem .9rem;margin-bottom:.5rem;background:var(--surface);width:100%;text-align:left}
+.spot.on{border-color:var(--emerald);background:var(--emerald-soft)}
+.slots{display:grid;grid-template-columns:repeat(3,1fr);grid-auto-rows:min-content;align-items:start;gap:.4rem;margin-top:.5rem}
+.slot{border:1.5px solid var(--line);background:var(--surface);border-radius:8px;padding:.45rem .3rem;font-size:.82rem;font-weight:600;text-align:center}
+.slot.on{background:var(--emerald);color:#fff;border-color:var(--emerald)}
+.slot.seller{box-shadow:inset 0 -3px 0 var(--tan)}
+.slot.match{background:var(--blue);color:#fff;border-color:var(--blue)}
+.pending{border:2px solid var(--tan);border-radius:16px;padding:1.2rem;background:var(--surface)}
+.confirm-row{display:flex;align-items:center;justify-content:space-between;padding:.7rem 0;border-bottom:1px solid var(--line)}
+.confirm-row:last-of-type{border-bottom:0}
+.tick{width:40px;height:40px;border-radius:50%;border:2px solid var(--line);background:var(--surface);font-size:1.1rem;font-weight:700}
+.tick.yes.on{background:var(--emerald);border-color:var(--emerald);color:#fff}
+.tick.no.on{background:var(--danger);border-color:var(--danger);color:#fff}
+.done-banner{background:var(--emerald);color:#fff;border-radius:12px;padding:1rem;margin-top:1rem}
+
+/* Profile */
+.profile{display:grid;grid-template-columns:320px 1fr;gap:1.5rem;align-items:start}
+.pcard{text-align:center}
+.pcard .avatar{width:84px;height:84px;font-size:2rem;margin:0 auto .8rem}
+.plist{text-align:left;margin-top:1rem;display:grid;gap:.55rem;font-size:.94rem}
+.plist div{display:flex;justify-content:space-between;gap:.5rem;border-bottom:1px solid var(--line);padding-bottom:.45rem}
+.plist span{color:var(--muted)}
+.stat-table{width:100%;border-collapse:collapse;font-size:.92rem}
+.stat-table th,.stat-table td{text-align:left;padding:.6rem .5rem;border-bottom:1px solid var(--line)}
+.stat-table th{color:var(--muted);font-weight:600;font-size:.82rem}
+.status{font-size:.78rem;font-weight:700;padding:.15rem .5rem;border-radius:999px;background:var(--emerald-soft);color:var(--emerald)}
+.status.pend{background:var(--cream);color:var(--brown)}
+
+/* Assistant */
+.fab{position:fixed;right:1.2rem;bottom:calc(1.2rem + env(safe-area-inset-bottom,0px));z-index:40;background:var(--blue);color:#fff;border:0;border-radius:999px;padding:.85rem 1.2rem;font-weight:700;display:flex;gap:.5rem;align-items:center;box-shadow:0 6px 20px rgba(33,63,101,.35)}
+.assistant{position:fixed;right:1.2rem;bottom:calc(5rem + env(safe-area-inset-bottom,0px));z-index:40;width:min(380px,calc(100vw - 2.4rem));background:var(--surface);border:1.5px solid var(--blue);border-radius:18px;overflow:hidden;box-shadow:0 12px 40px rgba(0,0,0,.2);display:flex;flex-direction:column;max-height:70vh}
+.assistant .msgs{flex:1;max-height:none}
+.assistant .seg{margin:.7rem .8rem 0}
+.mini-results{display:grid;gap:.4rem;margin-top:.5rem}
+.mini-results button{display:flex;gap:.5rem;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:.35rem;text-align:left;font-size:.86rem}
+.mini-results .mini{width:38px;height:38px;border-radius:6px;overflow:hidden;flex:none}
+
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(1.5rem + env(safe-area-inset-bottom,0px));background:var(--brown);color:var(--cream);padding:.7rem 1.1rem;border-radius:12px;z-index:60;font-weight:600;box-shadow:0 6px 20px rgba(0,0,0,.25)}
+
+@media (max-width:900px){
+  #auth{grid-template-columns:1fr}
+  .auth-brand{padding:2rem}
+  .auth-brand ul{display:none}
+  .browse,.detail,.sell,.inbox,.cart-wrap,.pickup,.profile{grid-template-columns:1fr}
+  .filters{position:static}
+  .cats{grid-template-columns:1fr}
+  .plans{grid-template-columns:1fr}
+  .threads{max-height:220px;border-right:0;border-bottom:1px solid var(--line)}
+  .top-inner{flex-wrap:wrap;gap:.6rem}
+  nav.main{order:3;flex-basis:100%}
+}
+</style>
+</head>
+<body>
+
+<!-- ================= AUTH ================= -->
+<section id="auth">
+  <div class="auth-brand">
+    <div>
+      <div class="wordmark">zunio</div>
+      <p class="pitch">The verified campus marketplace where AI handles the haggling.</p>
+      <ul>
+        <li><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12l5 5L20 7"/></svg>Every member verified with a university or organization email</li>
+        <li><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12l5 5L20 7"/></svg>An AI agent negotiates using the seller's own reasons</li>
+        <li><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12l5 5L20 7"/></svg>Safe pickups at campus police stations</li>
+      </ul>
+    </div>
+    <div class="byline">
+      <span class="logo-chip"><svg width="34" height="34" viewBox="60 30 80 130"><path d="M100,63 A50,50 0 0 1 100,153 A50,50 0 0 1 100,63 Z" fill="#00503d"/><circle cx="78" cy="108" r="50" fill="none" stroke="#213f65" stroke-width="8"/><circle cx="122" cy="108" r="50" fill="none" stroke="#213f65" stroke-width="8"/><polygon points="100,40 84,66 116,66" fill="#00503d"/></svg></span>
+      A product of Athenova
+    </div>
+  </div>
+
+  <div class="auth-panel">
+    <div class="auth-card">
+      <div class="steps"><span class="on" id="st1"></span><span id="st2"></span><span id="st3"></span><span id="st4"></span></div>
+
+      <!-- Step 1: email -->
+      <div id="a1">
+        <h1>Join Zunio</h1>
+        <p class="sub">Sign up with your university or organization email.</p>
+        <div class="seg" role="tablist">
+          <button class="on" id="tStudent" onclick="setAff('student')">University student</button>
+          <button id="tOrg" onclick="setAff('org')">Organization</button>
+        </div>
+        <div class="field" id="uniField">
+          <label for="uni">University</label>
+          <select id="uni"></select>
+        </div>
+        <div class="field">
+          <label for="email" id="emailLabel">University email (.edu)</label>
+          <input type="email" id="email" placeholder="you@northeastern.edu" autocomplete="email">
+          <span class="hint" id="emailHint">Students can buy and sell.</span>
+        </div>
+        <p class="err" id="e1"></p>
+        <button class="btn block" onclick="sendCode()">Send verification code</button>
+        <p style="margin-top:1rem;font-size:.88rem;color:var(--muted)">Presenting? <button class="linkbtn" onclick="demoFill()">Use the demo account</button></p>
+      </div>
+
+      <!-- Step 2: code -->
+      <div id="a2" class="hidden">
+        <h1>Check your email</h1>
+        <p class="sub">We sent a 6-digit code to <b id="sentTo"></b>. This keeps Zunio limited to trusted members.</p>
+        <div class="demo-note">Demo: the code is <b>482910</b>, or type any 6 digits.</div>
+        <div class="code-inputs" id="codeBox"></div>
+        <p class="err" id="e2"></p>
+        <button class="btn block" onclick="verifyCode()">Verify email</button>
+        <p style="margin-top:.8rem"><button class="linkbtn" onclick="go('a1')">Use a different email</button></p>
+      </div>
+
+      <!-- Step 3: account -->
+      <div id="a3" class="hidden">
+        <h1>Your details</h1>
+        <p class="sub">Your phone number stays private.</p>
+        <div class="row">
+          <div class="field"><label for="fn">First name</label><input type="text" id="fn"></div>
+          <div class="field"><label for="ln">Last name</label><input type="text" id="ln"></div>
+        </div>
+        <div class="field"><label for="em2">Email</label><input type="email" id="em2" disabled></div>
+        <div class="field">
+          <label for="ph">Phone number</label>
+          <input type="tel" id="ph" placeholder="(617) 555-0142">
+          <span class="private"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 018 0v4"/></svg>Only shared with someone you're actively trading with</span>
+        </div>
+        <p class="err" id="e3"></p>
+        <button class="btn block" onclick="saveAccount()">Continue</button>
+      </div>
+
+      <!-- Step 4: profile -->
+      <div id="a4" class="hidden">
+        <h1>Build your profile</h1>
+        <p class="sub" id="profSub">Tell buyers and sellers a little about you.</p>
+        <div id="pStudent">
+          <div class="field"><label for="major">Major</label><input type="text" id="major" placeholder="Business Administration"></div>
+          <div class="field"><label for="study">What are you studying?</label><input type="text" id="study" placeholder="Entrepreneurship and marketing"></div>
+        </div>
+        <div id="pOrg" class="hidden">
+          <div class="field"><label for="company">Company name</label><input type="text" id="company" placeholder="Brightside Labs"></div>
+          <div class="field"><label for="title">Your title</label><input type="text" id="title" placeholder="Operations Manager"></div>
+        </div>
+        <div class="row">
+          <div class="field"><label for="li">LinkedIn <span class="hint">(optional)</span></label><input type="url" id="li" placeholder="linkedin.com/in/…"></div>
+          <div class="field"><label for="ig">Instagram <span class="hint">(optional)</span></label><input type="text" id="ig" placeholder="@handle"></div>
+        </div>
+        <label class="check"><input type="checkbox" id="inq" checked>Let other members send me inquiries about my listings</label>
+        <label class="check"><input type="checkbox" id="news" checked>Email me the Zunio newsletter
+          <select id="newsFreq" style="width:auto;padding:.2rem .4rem;margin-left:.3rem"><option>Monthly</option><option>Bi-weekly</option></select></label>
+        <button class="btn block" onclick="finishProfile()">Enter Zunio</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= APP ================= -->
+<div id="app" class="hidden">
+  <header class="top"><div class="top-inner">
+    <button class="wordmark" onclick="show('browse')">zunio</button>
+    <nav class="main" id="nav">
+      <button data-p="browse" onclick="show('browse')">Browse</button>
+      <button data-p="sell" onclick="show('sell')">Sell</button>
+      <button data-p="messages" onclick="show('messages')">Messages <span class="badge" id="msgBadge">2</span></button>
+      <button data-p="cart" onclick="show('cart')">Cart <span class="badge" id="cartBadge">0</span></button>
+      <button data-p="pickup" onclick="show('pickup')">Pickup</button>
+      <button data-p="membership" onclick="show('membership')">Membership</button>
+    </nav>
+    <button class="avatar" id="topAvatar" onclick="show('profile')" aria-label="Your profile">T</button>
+  </div></header>
+
+  <main>
+    <!-- Browse -->
+    <section id="p-browse">
+      <div class="page-head">
+        <div><h1 id="hello">Hi there</h1><p>Items from verified students near <b id="campusName">your campus</b>.</p></div>
+      </div>
+      <div class="cats" id="cats"></div>
+      <div class="browse">
+        <aside class="filters">
+          <h3>Filters</h3>
+          <div class="field"><label for="fDist">Distance: within <b id="distOut">5</b> mi</label><input type="range" id="fDist" min="0.5" max="10" step="0.5" value="5" oninput="renderGrid()"></div>
+          <div class="field"><label for="fPrice">Max price: $<b id="priceOut">300</b></label><input type="range" id="fPrice" min="10" max="300" step="5" value="300" oninput="renderGrid()"></div>
+          <div class="field"><label for="fLoc">Location</label><select id="fLoc" onchange="renderGrid()"><option value="">All nearby campuses</option></select></div>
+          <div class="field"><label>Condition</label><div class="chips" id="fCond"></div></div>
+          <div class="field"><label>Price type</label><div class="chips" id="fNeg"></div></div>
+          <button class="linkbtn" onclick="resetFilters()">Clear filters</button>
+        </aside>
+        <div><div class="grid" id="grid"></div></div>
+      </div>
+    </section>
+
+    <!-- Detail -->
+    <section id="p-detail" class="hidden"></section>
+
+    <!-- Sell -->
+    <section id="p-sell" class="hidden">
+      <div class="page-head"><div><h1>List an item</h1><p>Every photo gets the same gray backdrop, so listings look consistent.</p></div></div>
+      <div class="sell">
+        <div>
+          <div class="scan" id="scanBox">
+            <div class="scan-empty" id="scanEmpty">
+              <svg width="54" height="54" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 8V6a2 2 0 012-2h2M16 4h2a2 2 0 012 2v2M20 16v2a2 2 0 01-2 2h-2M8 20H6a2 2 0 01-2-2v-2"/><circle cx="12" cy="12" r="3.5"/></svg>
+              <p style="margin:.5rem 0 1rem;font-weight:600">Take a photo of your item</p>
+              <button class="btn small" onclick="startScan()">Take photo</button>
+            </div>
+          </div>
+          <p class="meta" id="scanNote" style="margin-top:.6rem">Auto-scan detects the item, category, and condition.</p>
+        </div>
+        <div class="panel">
+          <div class="field"><label for="sTitle">Title</label><input type="text" id="sTitle" placeholder="IKEA desk lamp"></div>
+          <div class="row">
+            <div class="field"><label for="sCat">Category</label><select id="sCat"></select></div>
+            <div class="field"><label for="sCond">Condition</label><select id="sCond"></select></div>
+          </div>
+          <label style="font-weight:600;font-size:.92rem;display:block;margin-bottom:.4rem">Pricing</label>
+          <div class="toggle-row">
+            <button class="on" id="sNegY" onclick="setNeg(true)">Price negotiable<small>The AI can agree to offers down to your lowest price</small></button>
+            <button id="sNegN" onclick="setNeg(false)">Non-negotiable<small>The AI explains your price and holds firm</small></button>
+          </div>
+          <div class="row">
+            <div class="field"><label for="sPrice">Listing price ($)</label><input type="number" id="sPrice" placeholder="40" min="1"></div>
+            <div class="field" id="sMinWrap"><label for="sMin">Lowest price you'll accept ($)</label><input type="number" id="sMin" placeholder="32" min="1"></div>
+          </div>
+          <div class="field">
+            <label>Why this price, and why you won't go lower</label>
+            <span class="hint">Give 2 to 4 reasons. Zunio's AI uses them to negotiate for you, so buyers get answers in seconds.</span>
+            <div id="reasons" style="margin-top:.4rem"></div>
+            <button class="linkbtn" id="addReason" onclick="addReason()">Add another reason</button>
+          </div>
+          <p class="err" id="eSell"></p>
+          <button class="btn block" onclick="publish()">Publish listing</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Messages -->
+    <section id="p-messages" class="hidden">
+      <div class="page-head"><div><h1>Messages</h1><p>Each chat is tied to one item. Direct chats open only when both people agree.</p></div></div>
+      <div class="inbox"><div class="threads" id="threads"></div><div class="conv" id="conv"></div></div>
+    </section>
+
+    <!-- Cart -->
+    <section id="p-cart" class="hidden">
+      <div class="page-head"><div><h1>Your cart</h1></div></div>
+      <div class="cart-wrap"><div class="cart-list" id="cartList"></div><div id="cartSum"></div></div>
+    </section>
+
+    <!-- Pickup -->
+    <section id="p-pickup" class="hidden"></section>
+
+    <!-- Membership -->
+    <section id="p-membership" class="hidden">
+      <div class="page-head"><div><h1>Membership <span class="soon">Planned</span></h1><p>Two plans: one for students, one for small businesses furnishing new offices.</p></div></div>
+      <div class="plans">
+        <div class="plan">
+          <h2>Zunio Starter</h2>
+          <p class="who">For students and university members</p>
+          <div class="amt">Free in beta</div>
+          <ul><li>Buy and sell with verified members</li><li>AI negotiation on every listing</li><li>Safe pickup scheduling</li><li>Seller ratings and reviews</li></ul>
+          <button class="btn secondary" onclick="toast('You\'re on Zunio Starter')">Current plan</button>
+        </div>
+        <div class="plan biz">
+          <h2>Zunio Business</h2>
+          <p class="who">For small startups furnishing offices without high fixed costs</p>
+          <div class="amt">Custom</div>
+          <ul><li>Bulk orders across many listings</li><li>Set a minimum price line for bulk deals</li><li>Furniture and equipment from students moving out</li><li>Dedicated support for pickups</li></ul>
+          <button class="btn blue" onclick="toast('Thanks! Our team will reach out about Zunio Business.')">Request Business access</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Profile -->
+    <section id="p-profile" class="hidden"></section>
+  </main>
+
+  <button class="fab" id="fab" onclick="toggleAssist()">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 3l1.8 4.6L18 9l-4.2 1.4L12 15l-1.8-4.6L6 9l4.2-1.4z"/><path d="M19 15l.8 2 2 .8-2 .8-.8 2-.8-2-2-.8 2-.8z"/></svg>
+    Ask Zunio AI
+  </button>
+  <div class="assistant hidden" id="assist">
+    <div class="nego-head"><h3>Zunio AI</h3><button class="linkbtn" style="color:#fff" onclick="toggleAssist()">Close</button></div>
+    <div class="seg"><button class="on" id="asBuy" onclick="assistMode('buy')">Buying</button><button id="asSell" onclick="assistMode('sell')">Selling</button></div>
+    <div class="msgs" id="asMsgs"></div>
+    <div class="quick" id="asQuick"></div>
+    <div class="composer"><input type="text" id="asIn" placeholder="Ask anything" onkeydown="if(event.key==='Enter')assistSend()"><button class="btn blue small" onclick="assistSend()">Send</button></div>
+  </div>
+</div>
+
+<div class="toast hidden" id="toast"></div>
+
+<script>
+/* ---------- Data ---------- */
+const UNIS=["Northeastern University","Boston University","Harvard University","Massachusetts Institute of Technology","Boston College","Emerson College","Suffolk University","Tufts University","UMass Amherst","UMass Boston","Arizona State University","Columbia University","Cornell University","Duke University","Georgetown University","Georgia Institute of Technology","Indiana University","Johns Hopkins University","New York University","Northwestern University","Ohio State University","Penn State University","Princeton University","Purdue University","Rutgers University","Stanford University","Texas A&M University","University of California, Berkeley","University of California, Los Angeles","University of Chicago","University of Florida","University of Illinois Urbana-Champaign","University of Michigan","University of North Carolina at Chapel Hill","University of Pennsylvania","University of Southern California","University of Texas at Austin","University of Washington","University of Wisconsin–Madison","Yale University","Other"];
+const SAFE={"Northeastern University":["NUPD (Northeastern University Police)","Boston Police District D-4"],"Boston University":["Boston PD (District D-14)","BU Police Department"],"Harvard University":["Harvard University Police","Cambridge Police HQ"],"Massachusetts Institute of Technology":["MIT Police","Cambridge Police HQ"]};
+const CATS=[{id:'furniture',name:'Furniture',sub:'Desks, chairs, shelves'},{id:'electronics',name:'Electronics',sub:'Tech, appliances, lamps'},{id:'books',name:'Books & supplies',sub:'Textbooks, calculators'}];
+const CONDS=['New','Pristine','Good','Used'];
+const CAMPUSES=['Northeastern','Boston University','MIT','Harvard'];
+const SELLERS={maya:{name:'Maya R.',school:'Northeastern',major:'Industrial Design',rating:4.9,trades:23},jordan:{name:'Jordan P.',school:'Boston University',major:'Computer Science',rating:4.7,trades:11},priya:{name:'Priya S.',school:'MIT',major:'Mechanical Engineering',rating:5.0,trades:8},alex:{name:'Alex T.',school:'Harvard',major:'Economics',rating:4.6,trades:15},sam:{name:'Sam K.',school:'Northeastern',major:'Finance',rating:4.8,trades:19}};
+let L=[
+ {id:101,title:'Adjustable study desk',cat:'furniture',art:'desk',price:85,min:70,neg:true,cond:'Good',dist:0.6,campus:'Northeastern',seller:'maya',reasons:['Solid wood top, not particleboard','Height adjusts from 28" to 34"','Sells for $189 new at the campus store'],views:142},
+ {id:102,title:'Ergonomic desk chair',cat:'furniture',art:'chair',price:60,min:60,neg:false,cond:'Pristine',dist:1.2,campus:'Boston University',seller:'jordan',reasons:['Used for one semester only','Lumbar support and adjustable arms','Retail price is $159'],views:98},
+ {id:103,title:'Mini fridge, 3.1 cu ft',cat:'electronics',art:'fridge',price:70,min:55,neg:true,cond:'Good',dist:0.9,campus:'Northeastern',seller:'sam',reasons:['Freezer compartment works perfectly','Energy Star rated','Fits under a dorm desk'],views:211},
+ {id:104,title:'Intro to Economics textbook bundle',cat:'books',art:'books',price:45,min:45,neg:false,cond:'Used',dist:2.4,campus:'Harvard',seller:'alex',reasons:['Current edition required for EC 10','Includes the unused online access code','Bookstore charges $210 for the set'],views:76},
+ {id:105,title:'27" monitor',cat:'electronics',art:'monitor',price:120,min:100,neg:true,cond:'Pristine',dist:3.1,campus:'MIT',seller:'priya',reasons:['1440p resolution, no dead pixels','Comes with HDMI and DisplayPort cables','Bought eight months ago for $249'],views:187},
+ {id:106,title:'5-shelf bookcase',cat:'furniture',art:'shelf',price:40,min:32,neg:true,cond:'Used',dist:1.8,campus:'Boston University',seller:'jordan',reasons:['Sturdy, no wobble','Already assembled','Similar ones cost $70+'],views:64},
+ {id:107,title:'TI-84 Plus graphing calculator',cat:'books',art:'calc',price:55,min:55,neg:false,cond:'Good',dist:0.4,campus:'Northeastern',seller:'maya',reasons:['Required for calculus and stats courses','New batteries included','New price is $129'],views:133},
+ {id:108,title:'LED desk lamp',cat:'electronics',art:'lamp',price:18,min:14,neg:true,cond:'New',dist:2.0,campus:'MIT',seller:'priya',reasons:['Still in original box','Three brightness levels plus USB port','Retails for $35'],views:51},
+ {id:109,title:'Two-seat loveseat',cat:'furniture',art:'couch',price:150,min:120,neg:true,cond:'Good',dist:4.2,campus:'Harvard',seller:'alex',reasons:['Pet-free and smoke-free home','Removable, washable covers','Paid $420 two years ago'],views:120},
+ {id:110,title:'Noise-cancelling headphones',cat:'electronics',art:'phones',price:90,min:90,neg:false,cond:'Pristine',dist:1.5,campus:'Northeastern',seller:'sam',reasons:['Battery still lasts 30 hours','Includes case and charging cable','Retail price is $199'],views:156}
+];
+
+/* ---------- Item art (all on the same gray backdrop) ---------- */
+function art(type){
+  const bg='<rect width="200" height="200" fill="#d6d5d2"/><ellipse cx="100" cy="172" rx="62" ry="8" fill="#000" opacity=".12"/>';
+  const A={
+   desk:'<rect x="35" y="78" width="130" height="12" rx="2" fill="#9f785d"/><rect x="42" y="90" width="8" height="80" fill="#4d301b"/><rect x="150" y="90" width="8" height="80" fill="#4d301b"/><rect x="108" y="90" width="42" height="28" fill="#b8927a"/><rect x="122" y="102" width="14" height="3" rx="1.5" fill="#4d301b"/>',
+   chair:'<rect x="66" y="40" width="68" height="62" rx="12" fill="#213f65"/><rect x="62" y="104" width="76" height="16" rx="6" fill="#2d5285"/><rect x="96" y="120" width="8" height="34" fill="#555"/><path d="M60 166l40-12 40 12" stroke="#555" stroke-width="7" fill="none" stroke-linecap="round"/><rect x="54" y="86" width="8" height="26" rx="3" fill="#333"/><rect x="138" y="86" width="8" height="26" rx="3" fill="#333"/>',
+   fridge:'<rect x="62" y="44" width="76" height="124" rx="8" fill="#f2f2f0" stroke="#bbb" stroke-width="2"/><line x1="62" y1="82" x2="138" y2="82" stroke="#bbb" stroke-width="2"/><rect x="124" y="54" width="5" height="18" rx="2" fill="#999"/><rect x="124" y="92" width="5" height="30" rx="2" fill="#999"/>',
+   books:'<rect x="48" y="138" width="104" height="22" rx="2" fill="#00503d"/><rect x="56" y="114" width="92" height="24" rx="2" fill="#9f785d"/><rect x="44" y="92" width="100" height="22" rx="2" fill="#213f65"/><rect x="60" y="72" width="84" height="20" rx="2" fill="#4d301b"/><rect x="58" y="146" width="40" height="3" fill="#fde7d4"/><rect x="66" y="99" width="50" height="3" fill="#fde7d4"/>',
+   monitor:'<rect x="34" y="46" width="132" height="82" rx="5" fill="#222"/><rect x="40" y="52" width="120" height="70" fill="#213f65"/><rect x="40" y="52" width="120" height="70" fill="url(#g)" opacity=".5"/><rect x="94" y="128" width="12" height="28" fill="#333"/><rect x="70" y="154" width="60" height="8" rx="3" fill="#333"/><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#5a86c0"/><stop offset="1" stop-color="#213f65"/></linearGradient></defs>',
+   shelf:'<rect x="58" y="30" width="84" height="140" fill="#b8927a"/><rect x="64" y="36" width="72" height="128" fill="#8a6650"/><g fill="#b8927a"><rect x="64" y="60" width="72" height="5"/><rect x="64" y="86" width="72" height="5"/><rect x="64" y="112" width="72" height="5"/><rect x="64" y="138" width="72" height="5"/></g><rect x="70" y="42" width="8" height="18" fill="#00503d"/><rect x="80" y="45" width="7" height="15" fill="#fde7d4"/><rect x="100" y="94" width="9" height="18" fill="#213f65"/><rect x="111" y="97" width="7" height="15" fill="#fde7d4"/>',
+   calc:'<rect x="68" y="34" width="64" height="134" rx="10" fill="#2b2b2b"/><rect x="76" y="44" width="48" height="32" rx="3" fill="#a9b79b"/><g fill="#555">'+Array.from({length:15},(_,i)=>`<rect x="${78+(i%3)*16}" y="${86+Math.floor(i/3)*15}" width="12" height="9" rx="2"/>`).join('')+'</g>',
+   lamp:'<ellipse cx="80" cy="164" rx="30" ry="7" fill="#2b2b2b"/><path d="M80 162L96 98L132 70" stroke="#2b2b2b" stroke-width="6" fill="none" stroke-linecap="round"/><path d="M118 56l40 22-12 14-38-20z" fill="#2b2b2b"/><ellipse cx="140" cy="92" rx="10" ry="3" fill="#fde7d4"/>',
+   couch:'<rect x="34" y="78" width="132" height="54" rx="12" fill="#00503d"/><rect x="26" y="96" width="26" height="56" rx="10" fill="#00684f"/><rect x="148" y="96" width="26" height="56" rx="10" fill="#00684f"/><rect x="50" y="112" width="100" height="34" rx="6" fill="#00684f"/><line x1="100" y1="114" x2="100" y2="144" stroke="#00503d" stroke-width="2"/><rect x="40" y="152" width="6" height="14" fill="#4d301b"/><rect x="154" y="152" width="6" height="14" fill="#4d301b"/>',
+   phones:'<path d="M58 118V96a42 42 0 0184 0v22" stroke="#4d301b" stroke-width="10" fill="none" stroke-linecap="round"/><rect x="46" y="110" width="30" height="48" rx="12" fill="#4d301b"/><rect x="124" y="110" width="30" height="48" rx="12" fill="#4d301b"/><rect x="52" y="118" width="18" height="32" rx="8" fill="#9f785d"/><rect x="130" y="118" width="18" height="32" rx="8" fill="#9f785d"/>',
+   box:'<path d="M60 80l40-18 40 18v60l-40 18-40-18z" fill="#c9a27f"/><path d="M60 80l40 18 40-18M100 98v60" stroke="#9f785d" stroke-width="3" fill="none"/>'
+  };
+  return `<svg viewBox="0 0 200 200" role="img" aria-hidden="true">${bg}${A[type]||A.box}</svg>`;
+}
+
+/* ---------- State ---------- */
+const S={aff:'student',user:{},cat:'',cond:new Set(),neg:'',cart:[],threads:[],activeThread:null,sellNeg:true,scanned:null,pickup:null,myListings:[]};
+const $=id=>document.getElementById(id);
+const money=n=>'$'+Number(n).toLocaleString();
+function toast(t){const el=$('toast');el.textContent=t;el.classList.remove('hidden');clearTimeout(el._t);el._t=setTimeout(()=>el.classList.add('hidden'),2600)}
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+/* ---------- Auth ---------- */
+$('uni').innerHTML='<option value="">Select your university</option>'+UNIS.map(u=>`<option>${u}</option>`).join('');
+$('codeBox').innerHTML=Array.from({length:6},(_,i)=>`<input type="text" inputmode="numeric" maxlength="1" aria-label="Digit ${i+1}" data-i="${i}">`).join('');
+$('codeBox').querySelectorAll('input').forEach((inp,i,all)=>{
+  inp.addEventListener('input',()=>{inp.value=inp.value.replace(/\D/g,'');if(inp.value&&all[i+1])all[i+1].focus()});
+  inp.addEventListener('keydown',e=>{if(e.key==='Backspace'&&!inp.value&&all[i-1])all[i-1].focus();if(e.key==='Enter')verifyCode()});
+  inp.addEventListener('paste',e=>{const d=(e.clipboardData.getData('text')||'').replace(/\D/g,'').slice(0,6);if(d.length){e.preventDefault();d.split('').forEach((c,k)=>all[k]&&(all[k].value=c));all[Math.min(d.length,5)].focus()}});
+});
+function setAff(a){
+  S.aff=a;$('tStudent').classList.toggle('on',a==='student');$('tOrg').classList.toggle('on',a==='org');
+  $('uniField').classList.toggle('hidden',a!=='student');
+  $('emailLabel').textContent=a==='student'?'University email (.edu)':'Organization email (.edu, .org, or company domain)';
+  $('email').placeholder=a==='student'?'you@northeastern.edu':'you@brightsidelabs.org';
+  $('emailHint').textContent=a==='student'?'Students can buy and sell.':'Organization members can buy on Zunio.';
+}
+function go(id){['a1','a2','a3','a4'].forEach((k,i)=>{$(k).classList.toggle('hidden',k!==id);$('st'+(i+1)).classList.toggle('on',i<=['a1','a2','a3','a4'].indexOf(id))})}
+function sendCode(){
+  const em=$('email').value.trim().toLowerCase();$('e1').textContent='';
+  if(!/^[^@\s]+@[^@\s]+\.[a-z]{2,}$/.test(em))return $('e1').textContent='Enter a valid email address.';
+  if(S.aff==='student'){
+    if(!$('uni').value)return $('e1').textContent='Select your university.';
+    if(!em.endsWith('.edu'))return $('e1').textContent='Students need a .edu email address.';
+  }else if(/@(gmail|yahoo|outlook|hotmail|icloud|aol)\./.test(em))return $('e1').textContent='Use your organization email, not a personal one.';
+  S.user.email=em;S.user.uni=S.aff==='student'?$('uni').value:'';
+  $('sentTo').textContent=em;go('a2');setTimeout(()=>$('codeBox').querySelector('input').focus(),50);
+}
+function verifyCode(){
+  const c=[...$('codeBox').querySelectorAll('input')].map(i=>i.value).join('');
+  if(c.length<6)return $('e2').textContent='Enter all 6 digits.';
+  $('e2').textContent='';$('em2').value=S.user.email;go('a3');toast('Email verified');
+}
+function saveAccount(){
+  if(!$('fn').value.trim()||!$('ln').value.trim())return $('e3').textContent='Enter your first and last name.';
+  if($('ph').value.replace(/\D/g,'').length<10)return $('e3').textContent='Enter a 10-digit phone number.';
+  Object.assign(S.user,{first:$('fn').value.trim(),last:$('ln').value.trim(),phone:$('ph').value.trim()});
+  $('e3').textContent='';
+  $('pStudent').classList.toggle('hidden',S.aff!=='student');$('pOrg').classList.toggle('hidden',S.aff==='student');
+  $('profSub').textContent=S.aff==='student'?'Tell buyers and sellers a little about you.':'Add your company so sellers know who they\'re working with.';
+  go('a4');
+}
+function finishProfile(){
+  Object.assign(S.user,{major:$('major').value.trim()||'Undeclared',study:$('study').value.trim(),company:$('company').value.trim(),title:$('title').value.trim(),li:$('li').value.trim(),ig:$('ig').value.trim(),inq:$('inq').checked,news:$('news').checked?$('newsFreq').value:'Off'});
+  enterApp();
+}
+function demoFill(){
+  setAff('student');S.aff='student';
+  S.user={email:'tanya.singh@northeastern.edu',uni:'Northeastern University',first:'Tanya',last:'Singh',phone:'(617) 555-0142',major:'Business Administration',study:'Entrepreneurship',li:'linkedin.com/in/tanyasingh4',ig:'@tanya.builds',inq:true,news:'Monthly'};
+  enterApp();
+}
+
+/* ---------- App ---------- */
+function enterApp(){
+  $('auth').classList.add('hidden');$('app').classList.remove('hidden');
+  $('topAvatar').textContent=(S.user.first||'Z')[0].toUpperCase();
+  $('hello').textContent='Hi '+(S.user.first||'there');
+  const camp=S.user.uni?S.user.uni.replace(' University',''):'Boston';
+  $('campusName').textContent=S.user.uni||'Boston';
+  $('fLoc').innerHTML='<option value="">All nearby campuses</option>'+CAMPUSES.map(c=>`<option>${c}</option>`).join('');
+  seedThreads();buildBrowse();buildSell();show('browse');
+  setTimeout(()=>{toggleAssist(true)},700);
+}
+function show(p){
+  ['browse','detail','sell','messages','cart','pickup','membership','profile'].forEach(k=>$('p-'+k).classList.toggle('hidden',k!==p));
+  document.querySelectorAll('#nav button').forEach(b=>b.classList.toggle('on',b.dataset.p===p));
+  if(p==='messages')renderInbox();if(p==='cart')renderCart();if(p==='pickup')renderPickup();if(p==='profile')renderProfile();
+  window.scrollTo({top:0});
+}
+
+/* Browse */
+function buildBrowse(){
+  const icons={furniture:'<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#4d301b" stroke-width="1.8"><path d="M4 11V7a2 2 0 012-2h12a2 2 0 012 2v4M3 11h18v5H3zM5 16v3M19 16v3"/></svg>',electronics:'<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#4d301b" stroke-width="1.8"><rect x="3" y="4" width="18" height="12" rx="1.5"/><path d="M8 20h8M12 16v4"/></svg>',books:'<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#4d301b" stroke-width="1.8"><path d="M4 5a2 2 0 012-2h13v16H6a2 2 0 00-2 2zM4 19V5"/><path d="M8 7h7"/></svg>'};
+  $('cats').innerHTML=CATS.map(c=>`<button class="cat" data-c="${c.id}" onclick="pickCat('${c.id}')"><span class="ic">${icons[c.id]}</span><span><strong>${c.name}</strong><small>${c.sub} · ${L.filter(l=>l.cat===c.id).length} listings</small></span></button>`).join('');
+  $('fCond').innerHTML=CONDS.map(c=>`<button class="chip" onclick="toggleCond('${c}',this)">${c}</button>`).join('');
+  $('fNeg').innerHTML=[['','Any'],['neg','Negotiable'],['firm','Non-negotiable']].map(([v,t])=>`<button class="chip ${v===''?'on':''}" data-v="${v}" onclick="pickNeg('${v}')">${t}</button>`).join('');
+  renderGrid();
+}
+function pickCat(c){S.cat=S.cat===c?'':c;document.querySelectorAll('.cat').forEach(b=>b.classList.toggle('on',b.dataset.c===S.cat));renderGrid()}
+function toggleCond(c,el){S.cond.has(c)?S.cond.delete(c):S.cond.add(c);el.classList.toggle('on');renderGrid()}
+function pickNeg(v){S.neg=v;document.querySelectorAll('#fNeg .chip').forEach(b=>b.classList.toggle('on',b.dataset.v===v));renderGrid()}
+function resetFilters(){S.cat='';S.cond.clear();S.neg='';$('fDist').value=5;$('fPrice').value=300;$('fLoc').value='';buildBrowse()}
+function cardHTML(l){return `<button class="card" onclick="openItem(${l.id})"><span class="photo">${art(l.art)}<span class="tag ${l.neg?'neg':'firm'}">${l.neg?'Negotiable':'Non-negotiable'}</span></span><span class="info"><span class="price">${money(l.price)}</span><span style="font-weight:600">${esc(l.title)}</span><span class="meta">${l.cond} · ${l.dist} mi · ${l.campus}</span></span></button>`}
+function renderGrid(){
+  const d=+$('fDist').value,p=+$('fPrice').value,loc=$('fLoc').value;$('distOut').textContent=d;$('priceOut').textContent=p;
+  const list=L.filter(l=>(!S.cat||l.cat===S.cat)&&l.dist<=d&&l.price<=p&&(!loc||l.campus===loc)&&(!S.cond.size||S.cond.has(l.cond))&&(!S.neg||(S.neg==='neg')===l.neg));
+  $('grid').innerHTML=list.length?list.map(cardHTML).join(''):'<div class="empty" style="grid-column:1/-1">No listings match these filters. Try widening the distance or price.</div>';
+}
+
+/* Detail + AI negotiation */
+let cur=null;
+function openItem(id){
+  $('assist').classList.add('hidden');
+  cur=L.find(l=>l.id===id);const s=SELLERS[cur.seller]||{name:'You',school:S.user.uni,major:S.user.major,rating:5,trades:0};
+  cur.views++;
+  $('p-detail').innerHTML=`<button class="back" onclick="show('browse')">Back to listings</button>
+  <div class="detail">
+    <div><div class="photo">${art(cur.art)}<span class="tag ${cur.neg?'neg':'firm'}">${cur.neg?'Price negotiable':'Price non-negotiable'}</span></div></div>
+    <div>
+      <h1>${esc(cur.title)}</h1>
+      <div class="price" style="font-size:1.8rem;margin-top:.3rem">${money(cur.price)}</div>
+      <div class="kv"><div><small>Condition</small><b>${cur.cond}</b></div><div><small>Distance</small><b>${cur.dist} mi</b></div><div><small>Item</small><b>#${cur.id}</b></div></div>
+      <div class="seller"><span class="avatar">${s.name[0]}</span><div style="flex:1"><b>${esc(s.name)}</b> <span class="stars">${'★'.repeat(Math.round(s.rating))}</span> <span class="meta">${s.rating.toFixed(1)}</span><div class="meta">${esc(s.school||'')} · ${esc(s.major||'')} · ${s.trades} trades</div></div><span class="private">Verified .edu</span></div>
+      <div class="actions"><button class="btn" onclick="addToCart(${cur.id})">Add to cart</button><button class="btn secondary" onclick="buyNow(${cur.id})">Buy and schedule pickup</button></div>
+      <div class="nego">
+        <div class="nego-head"><div><h3>Negotiate with Zunio AI</h3><small>Answers instantly, using ${esc(s.name.split(' ')[0])}'s reasons</small></div></div>
+        <div class="msgs" id="nMsgs"></div>
+        <div class="quick" id="nQuick"></div>
+        <div class="composer"><input type="text" id="nIn" placeholder="Make an offer, like “Would you take $${Math.round(cur.price*0.75)}?”" onkeydown="if(event.key==='Enter')negoSend()"><button class="btn blue small" onclick="negoSend()">Send</button></div>
+      </div>
+    </div>
+  </div>`;
+  cur.state={agreed:null};
+  aiSay('nMsgs',`Hi! I'm negotiating for ${esc(s.name.split(' ')[0])}. ${cur.neg?'This price is negotiable. What would you like to offer?':'The seller has marked this price as final, but I\'m happy to explain why.'}`,0);
+  setQuick();show('detail');
+}
+function setQuick(){
+  const q=cur.neg?[`Would you take ${money(Math.round(cur.price*0.6))}?`,`How about ${money(Math.round(cur.price*0.85))}?`,'Why this price?']:[`Would you take ${money(Math.round(cur.price*0.8))}?`,'Why this price?'];
+  $('nQuick').innerHTML=q.map(t=>`<button class="chip" onclick="$('nIn').value='${t}';negoSend()">${t}</button>`).join('');
+}
+function bubble(box,cls,html){const m=document.createElement('div');m.className='msg '+cls;m.innerHTML=html;$(box).appendChild(m);$(box).scrollTop=1e6;return m}
+function aiSay(box,html,delay=1100,after){
+  const t=bubble(box,'ai','<span class="typing"><i></i><i></i><i></i></span>');
+  setTimeout(()=>{t.innerHTML=html;$(box).scrollTop=1e6;after&&after()},delay);
+}
+const reasonList=r=>'<ul>'+r.map(x=>`<li>${esc(x)}</li>`).join('')+'</ul>';
+function negoSend(){
+  const v=$('nIn').value.trim();if(!v)return;$('nIn').value='';bubble('nMsgs','me',esc(v));
+  const m=v.replace(/,/g,'').match(/\$?\s*(\d+(\.\d+)?)/);const offer=m?parseFloat(m[1]):null;
+  const first=(SELLERS[cur.seller]||{name:'The seller'}).name.split(' ')[0];
+  if(offer===null){aiSay('nMsgs',`${first} priced this at ${money(cur.price)} because:${reasonList(cur.reasons)}${cur.neg?'Send me a number and I\'ll tell you right away if it works.':'This price is final.'}`);return}
+  if(offer>=cur.price){aiSay('nMsgs',`Deal at ${money(offer>cur.price?cur.price:offer)}. You don't need to offer more than the listing price.`,900,()=>dealButtons(cur.price));return}
+  if(!cur.neg){
+    aiSay('nMsgs',`Thanks for the offer. ${first} has marked this as non-negotiable, so I can't go below ${money(cur.price)}. Here's why:${reasonList(cur.reasons)}`,1200,()=>{
+      bubble('nMsgs','sys',`<button class="btn small secondary" onclick="requestChat(${cur.id})">Ask ${esc(first)} for a direct chat</button>`);
+    });return;
+  }
+  if(offer>=cur.min){aiSay('nMsgs',`Good news: ${money(offer)} works. ${first} pre-approved offers in this range, so the deal is ready now.`,1100,()=>dealButtons(offer));return}
+  aiSay('nMsgs',`I can't accept ${money(offer)}. The lowest ${first} will go is <b>${money(cur.min)}</b>, because:${reasonList(cur.reasons)}Want it for ${money(cur.min)}?`,1300,()=>{
+    bubble('nMsgs','sys',`<span class="actions" style="justify-content:center"><button class="btn small" onclick="acceptAt(${cur.min})">Accept ${money(cur.min)}</button><button class="btn small secondary" onclick="requestChat(${cur.id})">Chat with ${esc(first)} directly</button></span>`);
+  });
+}
+function dealButtons(p){bubble('nMsgs','sys',`<span class="actions" style="justify-content:center"><button class="btn small" onclick="acceptAt(${p})">Add to cart at ${money(p)}</button></span>`)}
+function acceptAt(p){cur.agreed=p;addToCart(cur.id,p);bubble('nMsgs','sys','Offer accepted and added to your cart.')}
+function requestChat(id){
+  const l=L.find(x=>x.id===id),s=SELLERS[l.seller];
+  bubble('nMsgs','sys',`Request sent. Waiting for ${esc(s.name.split(' ')[0])} to accept…`);
+  setTimeout(()=>{
+    const th={id:'t'+id,item:id,with:s.name,status:'open',msgs:[{c:'sys',t:`${s.name} accepted your chat request`},{c:'them',t:`Hi! Happy to chat about the ${l.title.toLowerCase()}. ${l.neg?'What did you have in mind?':'The price is firm, but I can throw in pickup flexibility.'}`}]};
+    S.threads=S.threads.filter(t=>t.id!==th.id);S.threads.unshift(th);updateMsgBadge();
+    bubble('nMsgs','sys',`${esc(s.name.split(' ')[0])} accepted. <button class="linkbtn" onclick="S.activeThread='${th.id}';show('messages')">Open chat</button>`);
+    toast(`${s.name} accepted your chat request`);
+  },2200);
+}
+
+/* Cart */
+function addToCart(id,p){const l=L.find(x=>x.id===id);const ex=S.cart.find(c=>c.id===id);if(ex){if(p)ex.price=p}else S.cart.push({id,price:p||l.price});$('cartBadge').textContent=S.cart.length;toast('Added to cart: '+l.title)}
+function buyNow(id){if(!S.cart.find(c=>c.id===id))addToCart(id,cur&&cur.agreed);startPickup(id)}
+function renderCart(){
+  if(!S.cart.length){$('cartList').innerHTML='<div class="empty">Your cart is empty. <button class="linkbtn" onclick="show(\'browse\')">Browse listings</button></div>';$('cartSum').innerHTML='';return}
+  $('cartList').innerHTML=S.cart.map(c=>{const l=L.find(x=>x.id===c.id);return `<div class="cart-item"><span class="mini">${art(l.art)}</span><div style="flex:1"><b>${esc(l.title)}</b><div class="meta">#${l.id} · ${(SELLERS[l.seller]||{name:'You'}).name} · ${l.campus}</div>${c.price<l.price?`<div class="meta" style="color:var(--emerald);font-weight:600">Negotiated from ${money(l.price)}</div>`:''}</div><div style="text-align:right"><div class="price">${money(c.price)}</div><button class="linkbtn" onclick="removeCart(${l.id})">Remove</button></div></div>`}).join('');
+  const total=S.cart.reduce((a,c)=>a+c.price,0);
+  $('cartSum').innerHTML=`<div class="panel"><h3>Summary</h3><div class="plist"><div><span>${S.cart.length} item${S.cart.length>1?'s':''}</span><b>${money(total)}</b></div></div><p class="meta" style="margin-top:1rem">Payments aren't processed in Zunio yet. Pay the seller directly at pickup:</p><div class="pay"><span style="color:#008cff">Venmo</span><span style="color:#6d1ed4">Zelle</span></div><button class="btn block" onclick="startPickup(${S.cart[0].id})">Schedule pickup</button></div>`;
+}
+function removeCart(id){S.cart=S.cart.filter(c=>c.id!==id);$('cartBadge').textContent=S.cart.length;renderCart()}
+
+/* Pickup */
+const DAYS=['Mon','Tue','Wed','Thu','Fri','Sat'],TIMES=['10am','1pm','4pm','7pm'];
+function startPickup(id){
+  const l=L.find(x=>x.id===id);const sellerFree=['Tue 1pm','Wed 4pm','Thu 10am','Thu 4pm','Sat 1pm'];
+  S.pickup={id,spot:0,mine:new Set(),seller:new Set(sellerFree),match:null,buyer:null,sellerOK:null,price:(S.cart.find(c=>c.id===id)||{}).price||l.price};
+  show('pickup');
+}
+function renderPickup(){
+  const P=S.pickup;
+  if(!P){$('p-pickup').innerHTML=`<div class="page-head"><div><h1>Pickup <span class="soon">Coming soon</span></h1><p>Choose an item to buy, then schedule a safe pickup here.</p></div></div><div class="empty">No pickups scheduled. <button class="linkbtn" onclick="show('browse')">Browse listings</button></div>`;return}
+  const l=L.find(x=>x.id===P.id),s=SELLERS[l.seller]||{name:'You'};
+  const spots=SAFE[S.user.uni]||SAFE['Northeastern University'];
+  $('p-pickup').innerHTML=`<div class="page-head"><div><h1>Safe pickup <span class="soon">Coming soon</span></h1><p>Trades happen at a police station near campus, and only finish when both people confirm.</p></div></div>
+  <div class="pickup">
+    <div class="panel">
+      <h3 style="margin-bottom:.7rem">1. Choose a pickup spot</h3>
+      ${spots.map((sp,i)=>`<button class="spot ${P.spot===i?'on':''}" onclick="S.pickup.spot=${i};renderPickup()"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--emerald)" stroke-width="2"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/></svg><span><b>${sp}</b><br><span class="meta">${i===0?'Closest to you':'Alternative option'}</span></span></button>`).join('')}
+      <h3 style="margin:1.3rem 0 .2rem">2. When are you free?</h3>
+      <p class="meta">Tap your times. Brown underlines show when ${esc(s.name.split(' ')[0])} is free.</p>
+      <div class="slots">${DAYS.flatMap(d=>TIMES.map(t=>{const k=d+' '+t;const cls=[P.mine.has(k)?'on':'',P.seller.has(k)?'seller':'',P.match===k?'match':''].join(' ');return `<button class="slot ${cls}" onclick="toggleSlot('${k}')">${k}</button>`})).join('')}</div>
+      <button class="btn blue block" style="margin-top:1rem" onclick="findTime()">Find the best time with AI</button>
+      <p class="meta" id="matchOut" style="margin-top:.6rem">${P.match?`Best common time: <b>${P.match}</b> at ${spots[P.spot]}.`:''}</p>
+    </div>
+    <div class="pending">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:.5rem;flex-wrap:wrap"><h2>Item #${l.id}</h2><span class="status ${P.buyer&&P.sellerOK?'':'pend'}">${P.buyer&&P.sellerOK?'Sale complete':'Pending sale'}</span></div>
+      <div class="cart-item" style="margin:1rem 0;border:0;padding:0"><span class="mini">${art(l.art)}</span><div><b>${esc(l.title)}</b><div class="meta">${money(P.price)} · Pay by Venmo or Zelle</div><div class="meta">${P.match?P.match+' · '+spots[P.spot]:'Pickup time not set'}</div></div></div>
+      <p class="meta" style="margin-bottom:.4rem">The sale completes when both people confirm the trade happened.</p>
+      <div class="confirm-row"><span><b>Buyer</b> (you)</span><span class="actions"><button class="tick yes ${P.buyer===true?'on':''}" aria-label="Buyer confirms" onclick="confirmT('buyer',true)">✓</button><button class="tick no ${P.buyer===false?'on':''}" aria-label="Buyer declines" onclick="confirmT('buyer',false)">✕</button></span></div>
+      <div class="confirm-row"><span><b>Seller</b> (${esc(s.name)})</span><span class="actions"><button class="tick yes ${P.sellerOK===true?'on':''}" aria-label="Seller confirms" onclick="confirmT('sellerOK',true)">✓</button><button class="tick no ${P.sellerOK===false?'on':''}" aria-label="Seller declines" onclick="confirmT('sellerOK',false)">✕</button></span></div>
+      ${P.buyer&&P.sellerOK?`<div class="done-banner"><b>Trade complete.</b> Rate ${esc(s.name.split(' ')[0])}:<div style="font-size:1.6rem;margin-top:.3rem">${[1,2,3,4,5].map(n=>`<button style="background:none;border:0;color:${(P.rate||0)>=n?'#f2c14e':'#ffffff80'};font-size:1.6rem;padding:0 .1rem" onclick="S.pickup.rate=${n};renderPickup();toast('Thanks for rating!')">★</button>`).join('')}</div></div>`:''}
+      ${P.buyer===false||P.sellerOK===false?`<p class="err" style="margin-top:.8rem">The trade was marked as not completed. The item stays pending until both people confirm.</p>`:''}
+    </div>
+  </div>`;
+}
+function toggleSlot(k){const m=S.pickup.mine;m.has(k)?m.delete(k):m.add(k);S.pickup.match=null;renderPickup()}
+function findTime(){
+  const P=S.pickup;const both=[...P.mine].filter(k=>P.seller.has(k));
+  if(!P.mine.size){toast('Tap at least one time you\'re free');return}
+  if(!both.length){$('matchOut').innerHTML='No overlap yet. Try one of the underlined times.';return}
+  $('matchOut').innerHTML='<span class="typing"><i></i><i></i><i></i></span>';
+  setTimeout(()=>{both.sort((a,b)=>DAYS.indexOf(a.split(' ')[0])-DAYS.indexOf(b.split(' ')[0]));P.match=both[0];renderPickup();toast('Pickup set for '+P.match)},900);
+}
+function confirmT(who,val){
+  S.pickup[who]=val;
+  if(S.pickup.buyer&&S.pickup.sellerOK){const id=S.pickup.id;S.cart=S.cart.filter(c=>c.id!==id);$('cartBadge').textContent=S.cart.length;toast('Sale complete for item #'+id)}
+  renderPickup();
+}
+
+/* Messages */
+function seedThreads(){
+  S.threads=[
+    {id:'t103',item:103,with:'Sam K.',status:'open',msgs:[{c:'sys',t:'You both agreed to a direct chat'},{c:'them',t:'Hey! The fridge is still available. I can do Thursday afternoon.'},{c:'me',t:'Thursday works. Is NUPD okay for pickup?'},{c:'them',t:'Perfect, see you there.'}]},
+    {id:'t109',item:109,with:'Alex T.',status:'open',msgs:[{c:'sys',t:'You both agreed to a direct chat'},{c:'them',t:'The loveseat covers just came back from the wash. Want more photos?'}]}
+  ];S.activeThread='t103';updateMsgBadge();
+}
+function updateMsgBadge(){$('msgBadge').textContent=S.threads.length}
+function renderInbox(){
+  if(!S.threads.find(t=>t.id===S.activeThread))S.activeThread=S.threads[0]&&S.threads[0].id;
+  $('threads').innerHTML=S.threads.map(t=>{const l=L.find(x=>x.id===t.item);const last=t.msgs[t.msgs.length-1];return `<button class="thread ${t.id===S.activeThread?'on':''}" onclick="S.activeThread='${t.id}';renderInbox()"><span class="mini">${art(l.art)}</span><span style="min-width:0"><b>${esc(t.with)}</b><div class="meta" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(l.title)}</div><div class="meta" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(last.t)}</div></span></button>`}).join('');
+  const t=S.threads.find(x=>x.id===S.activeThread);if(!t){$('conv').innerHTML='<div class="empty" style="margin:1rem">No chats yet.</div>';return}
+  const l=L.find(x=>x.id===t.item);
+  $('conv').innerHTML=`<div class="conv-head"><div><b>${esc(t.with)}</b> <span class="meta">· Item #${l.id} ${esc(l.title)}</span></div><button class="btn small secondary" onclick="openItem(${l.id})">View item</button></div><div class="msgs" id="cMsgs">${t.msgs.map(m=>`<div class="msg ${m.c}">${esc(m.t)}</div>`).join('')}</div><div class="composer"><input type="text" id="cIn" placeholder="Message ${esc(t.with.split(' ')[0])}" onkeydown="if(event.key==='Enter')chatSend()"><button class="btn small" onclick="chatSend()">Send</button></div>`;
+  $('cMsgs').scrollTop=1e6;
+}
+function chatSend(){
+  const v=$('cIn').value.trim();if(!v)return;const t=S.threads.find(x=>x.id===S.activeThread);t.msgs.push({c:'me',t:v});renderInbox();
+  setTimeout(()=>{t.msgs.push({c:'them',t:'Sounds good! Let\'s lock in a pickup time on Zunio.'});if(!$('p-messages').classList.contains('hidden'))renderInbox()},1500);
+}
+
+/* Sell */
+function buildSell(){
+  $('sCat').innerHTML=CATS.map(c=>`<option value="${c.id}">${c.name}</option>`).join('');
+  $('sCond').innerHTML=CONDS.map(c=>`<option>${c}</option>`).join('');
+  $('reasons').innerHTML='';addReason();addReason();
+}
+function addReason(){const n=$('reasons').children.length;if(n>=4)return;const d=document.createElement('div');d.className='reason';d.innerHTML=`<span>${n+1}</span><input type="text" placeholder="${['Bought it for $65 last fall','Barely used, no scratches','Comes with the original charger','Pickup flexibility on weekends'][n]}">`;$('reasons').appendChild(d);$('addReason').classList.toggle('hidden',n+1>=4)}
+function setNeg(v){S.sellNeg=v;$('sNegY').classList.toggle('on',v);$('sNegN').classList.toggle('on',!v);$('sMinWrap').classList.toggle('hidden',!v)}
+function startScan(){
+  const box=$('scanBox');box.innerHTML='<div class="scanline"></div><div class="scan-empty" style="font-weight:600">Scanning item…</div>';
+  setTimeout(()=>{S.scanned='lamp';box.classList.add('done');box.innerHTML=art('lamp');
+    $('sTitle').value='LED desk lamp';$('sCat').value='electronics';$('sCond').value='Good';
+    $('scanNote').innerHTML='<b style="color:var(--emerald)">Detected:</b> desk lamp · Electronics · Good condition. Background replaced with the standard gray. <button class="linkbtn" onclick="resetScan()">Retake</button>';
+  },1800);
+}
+function resetScan(){S.scanned=null;const b=$('scanBox');b.classList.remove('done');b.innerHTML=`<div class="scan-empty"><p style="margin-bottom:1rem;font-weight:600">Take a photo of your item</p><button class="btn small" onclick="startScan()">Take photo</button></div>`;$('scanNote').textContent='Auto-scan detects the item, category, and condition.'}
+function publish(){
+  const title=$('sTitle').value.trim(),price=+$('sPrice').value,min=S.sellNeg?+$('sMin').value:price;
+  const reasons=[...$('reasons').querySelectorAll('input')].map(i=>i.value.trim()).filter(Boolean);
+  const e=$('eSell');
+  if(!S.scanned)return e.textContent='Take a photo of your item first.';
+  if(!title)return e.textContent='Add a title.';
+  if(!price)return e.textContent='Set a listing price.';
+  if(S.sellNeg&&(!min||min>price))return e.textContent='Your lowest price must be at or below the listing price.';
+  if(reasons.length<2)return e.textContent='Add at least 2 reasons so the AI can negotiate for you.';
+  e.textContent='';
+  const id=200+S.myListings.length+1;
+  const item={id,title,cat:$('sCat').value,art:S.scanned,price,min,neg:S.sellNeg,cond:$('sCond').value,dist:0.1,campus:(S.user.uni||'Northeastern').replace(' University',''),seller:'me',reasons,views:0,offers:0,mine:true};
+  SELLERS.me={name:(S.user.first||'You')+' '+((S.user.last||'')[0]||'')+'.',school:S.user.uni,major:S.user.major,rating:5,trades:0};
+  L.unshift(item);S.myListings.push(id);buildBrowse();resetScan();$('sTitle').value='';$('sPrice').value='';$('sMin').value='';$('reasons').innerHTML='';addReason();addReason();
+  toast('Listing published. Zunio AI is ready to negotiate for you.');show('profile');
+}
+
+/* Profile */
+function renderProfile(){
+  const u=S.user;const mine=L.filter(l=>l.mine);
+  const rows=[['School',u.uni||u.company||'—'],[u.uni?'Major':'Title',u.uni?u.major:(u.title||'—')],['Email',u.email],['Phone',u.phone+' <span class="private">Private</span>'],['Instagram',u.ig||'—'],['LinkedIn',u.li||'—'],['Inquiries',u.inq?'Open':'Off'],['Newsletter',u.news]];
+  const demo=[{title:'Desk chair (sold)',views:88,offers:6,ai:9,status:'Sold'},{title:'Spring textbooks',views:41,offers:2,ai:3,status:'Active'}];
+  const tableRows=[...mine.map(l=>({title:l.title,views:l.views,offers:l.offers||0,ai:0,status:'Active'})),...demo];
+  $('p-profile').innerHTML=`<div class="page-head"><div><h1>Your profile</h1></div></div>
+  <div class="profile">
+    <div class="panel pcard"><span class="avatar">${esc((u.first||'Z')[0])}</span><h2>${esc((u.first||'')+' '+(u.last||''))}</h2><p class="meta">${esc(u.study||u.company||'')}</p><p class="stars" style="margin-top:.4rem">★★★★★ <span class="meta">New member</span></p>
+      <div class="plist">${rows.map(([k,v])=>`<div><span>${k}</span><b>${k==='Phone'?v:esc(v)}</b></div>`).join('')}</div>
+    </div>
+    <div class="panel">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.8rem;gap:.5rem;flex-wrap:wrap"><h2>Your listings</h2><button class="btn small" onclick="show('sell')">List an item</button></div>
+      <div style="overflow-x:auto"><table class="stat-table"><thead><tr><th>Item</th><th>Views</th><th>Offers</th><th>AI chats</th><th>Status</th></tr></thead><tbody>
+      ${tableRows.map(r=>`<tr><td><b>${esc(r.title)}</b></td><td>${r.views}</td><td>${r.offers}</td><td>${r.ai}</td><td><span class="status ${r.status==='Active'?'':'pend'}">${r.status}</span></td></tr>`).join('')}
+      </tbody></table></div>
+      <p class="meta" style="margin-top:1rem">Ask Zunio AI in Selling mode for a summary of how your listings are doing.</p>
+    </div>
+  </div>`;
+}
+
+/* Assistant */
+let asMode='buy',asStarted=false;
+function toggleAssist(force){
+  const a=$('assist');const open=force===true?true:a.classList.contains('hidden');a.classList.toggle('hidden',!open);
+  if(open&&!asStarted){asStarted=true;assistMode('buy')}
+}
+function assistMode(m){
+  asMode=m;$('asBuy').classList.toggle('on',m==='buy');$('asSell').classList.toggle('on',m==='sell');$('asMsgs').innerHTML='';
+  if(m==='buy'){aiSay('asMsgs',`Hi ${esc(S.user.first||'there')}! Tell me what you're looking for and I'll search listings near ${esc((S.user.uni||'campus').replace(' University',''))}.`,500);
+    $('asQuick').innerHTML=['A desk under $100','Something for my dorm','Electronics in pristine condition'].map(q=>`<button class="chip" onclick="$('asIn').value='${q}';assistSend()">${q}</button>`).join('')}
+  else{aiSay('asMsgs','I can track how your listings are doing and suggest changes.',500);
+    $('asQuick').innerHTML=['How are my listings doing?','How do I get more offers?'].map(q=>`<button class="chip" onclick="$('asIn').value='${q}';assistSend()">${q}</button>`).join('')}
+}
+function assistSend(){
+  const v=$('asIn').value.trim();if(!v)return;$('asIn').value='';bubble('asMsgs','me',esc(v));const q=v.toLowerCase();
+  if(asMode==='sell'){
+    const mine=L.filter(l=>l.mine);
+    if(q.includes('more')||q.includes('tip'))return aiSay('asMsgs','Three ideas: add a third or fourth reason to your listing, switch to negotiable if it\'s been up more than a week, and keep pickup times flexible. Listings with 3+ reasons get the AI to a deal faster.');
+    return aiSay('asMsgs',mine.length?`You have ${mine.length} active listing${mine.length>1?'s':''}. ${mine.map(l=>`<b>${esc(l.title)}</b>: ${l.views} views so far, AI ready to negotiate down to ${money(l.min)}.`).join(' ')} You've also sold 1 item this month.`:'You don\'t have active listings yet. Your desk chair sold for $55 after 9 AI conversations. <button class="linkbtn" onclick="show(\'sell\')">List an item</button>');
+  }
+  const priceM=q.match(/\$?(\d+)/);const max=priceM?+priceM[1]:Infinity;
+  const words={desk:['desk'],chair:['chair'],fridge:['fridge','dorm'],lamp:['lamp','dorm'],book:['book','textbook'],monitor:['monitor','screen'],couch:['couch','sofa','loveseat'],calc:['calculator'],headphone:['headphone']};
+  let res=L.filter(l=>l.price<=max);
+  const catHit=CATS.find(c=>q.includes(c.id.slice(0,5))||q.includes(c.name.toLowerCase().slice(0,5)));
+  const kw=Object.entries(words).filter(([k,ws])=>ws.some(w=>q.includes(w))).map(([k])=>k);
+  if(kw.length)res=res.filter(l=>kw.some(k=>l.title.toLowerCase().includes(k)||l.art.includes(k.slice(0,4))||(k==='fridge'&&l.art==='fridge')||(k==='lamp'&&l.art==='lamp')));
+  else if(catHit)res=res.filter(l=>l.cat===catHit.id);
+  if(q.includes('pristine'))res=res.filter(l=>l.cond==='Pristine');
+  if(q.includes('new'))res=res.filter(l=>l.cond==='New');
+  res=res.sort((a,b)=>a.dist-b.dist).slice(0,4);
+  if(!res.length)return aiSay('asMsgs','I couldn\'t find a match. Try a different item or a higher price.');
+  aiSay('asMsgs',`I found ${res.length} option${res.length>1?'s':''}, closest first:<div class="mini-results">${res.map(l=>`<button onclick="openItem(${l.id})"><span class="mini">${art(l.art)}</span><span><b>${money(l.price)}</b> ${esc(l.title)}<br><span class="meta">${l.dist} mi · ${l.cond} · ${l.neg?'Negotiable':'Firm'}</span></span></button>`).join('')}</div>`);
+}
+</script>
+</body>
+</html>
